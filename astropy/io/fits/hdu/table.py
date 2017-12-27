@@ -122,11 +122,18 @@ class _TableLikeHDU(_ValidHDU):
         Any additional keyword arguments accepted by the HDU class's
         ``__init__`` may also be passed in as keyword arguments.
         """
-
         coldefs = cls._columns_type(columns)
-        data = FITS_rec.from_columns(coldefs, nrows=nrows, fill=fill,
-                                     character_as_bytes=character_as_bytes)
-        hdu = cls(data=data, header=header, character_as_bytes=character_as_bytes, **kwargs)
+        if nocopy==False:
+            data = FITS_rec.from_columns(coldefs, nrows=nrows, fill=fill,
+                                         character_as_bytes=character_as_bytes)
+            hdu = cls(data=data, header=header, character_as_bytes=character_as_bytes, **kwargs)
+        else :
+            if isinstance(columns,Column) or isinstance(columns,ColDefs) :
+                raise Exception("data has to be copied")
+            elif isinstance(columns,TableHDU) or isinstance(columns,BinTableHDU):
+                hdu = cls(data=columns.data, header=header, character_as_bytes=character_as_bytes, **kwargs)
+            else:
+                hdu = cls(data=columns, header=header, character_as_bytes=character_as_bytes, **kwargs)
         coldefs._add_listener(hdu)
         return hdu
 
