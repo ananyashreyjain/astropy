@@ -381,6 +381,13 @@ def read(table, guess=None, **kwargs):
                                     'Reader': reader.__class__,
                                     'status': 'Success with slow reader after failing'
                                              ' with fast (no guessing)'})
+            except UnicodeEncodeError as u:
+              # If there are non-ASCII characters in the file,try slow version.
+                dat = reader.read(table)
+                _read_trace.append({'kwargs': new_kwargs,
+                                    'Reader': reader.__class__,
+                                    'status': 'Success with specified Reader class '
+                                              '(no guessing)'})
         else:
             dat = reader.read(table)
             _read_trace.append({'kwargs': new_kwargs,
